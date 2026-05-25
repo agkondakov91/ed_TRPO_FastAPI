@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 
 from app.data import courses
+from app.schemas.course import CoursePostSchema, CourseReadSchema, CourseUpdateSchema
 
 router = APIRouter(
     prefix='/courses',
@@ -8,18 +9,14 @@ router = APIRouter(
 )
 
 
-@router.get('/')
+@router.get('/', response_model=list[CourseReadSchema])
 def get_courses(active: bool | None = None):
     if active is None:
         return courses
-    filtered_courses = []
-    for course in courses:
-        if course['is_active'] == active:
-            filtered_courses.append(course)
-    return filtered_courses
+    return [course for course in courses if course['is_active'] == active]
 
 
-@router.get('/{course_id}')
+@router.get('/{course_id}', response_model=CourseReadSchema)
 def get_course(course_id: int):
     for course in courses:
         if course['id'] == course_id:
@@ -30,12 +27,12 @@ def get_course(course_id: int):
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED)
-def create_course(title: str, description: str):
+def create_course(course_schema: CoursePostSchema):
     new_course = {
         'id': len(courses) + 1,
-        'title': title,
-        'description': description,
-        'is_active': True,
+        'title': course_schema.title,
+        'description': course_schema.description,
+        'is_active': course_schema.is_active,
     }
     courses.append(new_course)
     return new_course
@@ -54,24 +51,13 @@ def update_course(course_id: int, title: str, description: str, is_active: bool)
     )
 
 
-@router.patch('/{course_id}')
-def partially_update_course(
-    course_id: int,
-    title: str | None = None,
-    description: str | None = None,
-    is_active: bool | None = None,
-):
+@router.patch('/{course_id}', response_model=CourseReadSchema)
+def partially_update_course(course_id: int, course_schema: CourseUpdateSchema):
     for course in courses:
         if course['id'] == course_id:
-            if title is not None:
-                course['title'] = title
-
-            if description is not None:
-                course['description'] = description
-
-            if is_active is not None:
-                course['is_active'] = is_active
-
+            update_data = course_schema.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
+                course[key] = value
             return course
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
