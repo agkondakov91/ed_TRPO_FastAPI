@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 
-from app.routers import courses
+from app.routers import courses, lessons
 
 app = FastAPI(
     title='Learning Platform API',
     description='API для учебной платформы на FastAPI',
-    version='0.2.0',
+    version='0.2.1',
 )
 
 app.include_router(courses.router)
+app.include_router(lessons.router)
 
 
 @app.get('/')
