@@ -1,7 +1,12 @@
 from fastapi import APIRouter, HTTPException, status
 
-from app.data import courses
-from app.schemas.course import CoursePostSchema, CourseReadSchema, CourseUpdateSchema
+from app.schemas.course import (
+    CoursePostSchema,
+    CourseReadSchema,
+    CourseReplaceSchema,
+    CourseUpdateSchema,
+)
+from app.services import course_service
 
 router = APIRouter(
     prefix='/courses',
@@ -11,65 +16,49 @@ router = APIRouter(
 
 @router.get('/', response_model=list[CourseReadSchema])
 def get_courses(active: bool | None = None):
-    if active is None:
-        return courses
-    return [course for course in courses if course['is_active'] == active]
+    return course_service.get_courses(active=active)
 
 
 @router.get('/{course_id}', response_model=CourseReadSchema)
 def get_course(course_id: int):
-    for course in courses:
-        if course['id'] == course_id:
-            return course
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-    )
+    course = course_service.get_course(course_id)
+    if course is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
+        )
+    return course
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED)
-def create_course(course_schema: CoursePostSchema):
-    new_course = {
-        'id': len(courses) + 1,
-        'title': course_schema.title,
-        'description': course_schema.description,
-        'is_active': course_schema.is_active,
-    }
-    courses.append(new_course)
-    return new_course
+@router.post('/', response_model=CourseReadSchema, status_code=status.HTTP_201_CREATED)
+def create_course(course_data: CoursePostSchema):
+    return course_service.create_course(course_data)
 
 
-@router.put('/{course_id}')
-def update_course(course_id: int, title: str, description: str, is_active: bool):
-    for course in courses:
-        if course['id'] == course_id:
-            course['title'] = title
-            course['description'] = description
-            course['is_active'] = is_active
-            return course
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-    )
+@router.put('/{course_id}', response_model=CourseReadSchema)
+def replace_course(course_id: int, course_data: CourseReplaceSchema):
+    course = course_service.replace_course(course_id, course_data)
+    if course is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
+        )
+    return course
 
 
 @router.patch('/{course_id}', response_model=CourseReadSchema)
-def partially_update_course(course_id: int, course_schema: CourseUpdateSchema):
-    for course in courses:
-        if course['id'] == course_id:
-            update_data = course_schema.model_dump(exclude_unset=True)
-            for key, value in update_data.items():
-                course[key] = value
-            return course
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-    )
+def update_course(course_id: int, course_data: CourseUpdateSchema):
+    course = course_service.update_course(course_id, course_data)
+    if course is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
+        )
+    return course
 
 
 @router.delete('/{course_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_course(course_id: int):
-    for course in courses:
-        if course['id'] == course_id:
-            courses.remove(course)
-            return None
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-    )
+    is_delete = course_service.delete_course(course_id)
+    if not is_delete:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
+        )
+    return None

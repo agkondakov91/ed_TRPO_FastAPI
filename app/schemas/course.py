@@ -7,6 +7,10 @@ class CoursePostSchema(BaseModel):
     is_active: bool = True
 
 
+class CourseReplaceSchema(CoursePostSchema):
+    is_active: bool
+
+
 class CourseUpdateSchema(BaseModel):
     title: str | None = Field(default=None, min_length=3, max_length=100)
     description: str | None = Field(default=None, max_length=500)

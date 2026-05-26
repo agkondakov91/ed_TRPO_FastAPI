@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from app.data import lessons
+from app.repositories.lesson_repository import lessons
 from app.schemas.lesson import LessonCreateSchema, LessonReadSchema, LessonUpdateSchema
 
 router = APIRouter(prefix='/lessons', tags=['Lessons'])
