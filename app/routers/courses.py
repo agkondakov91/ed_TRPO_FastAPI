@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from app.schemas.course import (
     CoursePostSchema,
@@ -7,6 +7,7 @@ from app.schemas.course import (
     CourseUpdateSchema,
 )
 from app.services import course_service
+from app.utils.exceptions import raise_not_found
 
 router = APIRouter(
     prefix='/courses',
@@ -23,9 +24,7 @@ def get_courses(active: bool | None = None):
 def get_course(course_id: int):
     course = course_service.get_course(course_id)
     if course is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-        )
+        raise_not_found('Course')
     return course
 
 
@@ -38,9 +37,7 @@ def create_course(course_data: CoursePostSchema):
 def replace_course(course_id: int, course_data: CourseReplaceSchema):
     course = course_service.replace_course(course_id, course_data)
     if course is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-        )
+        raise_not_found('Course')
     return course
 
 
@@ -48,17 +45,13 @@ def replace_course(course_id: int, course_data: CourseReplaceSchema):
 def update_course(course_id: int, course_data: CourseUpdateSchema):
     course = course_service.update_course(course_id, course_data)
     if course is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-        )
+        raise_not_found('Course')
     return course
 
 
 @router.delete('/{course_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_course(course_id: int):
-    is_delete = course_service.delete_course(course_id)
-    if not is_delete:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Course not found'
-        )
+    is_deleted = course_service.delete_course(course_id)
+    if not is_deleted:
+        raise_not_found('Course')
     return None
