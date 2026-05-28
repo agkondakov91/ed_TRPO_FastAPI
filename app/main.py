@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 
-from app.core.config import settings
+from app.core.config import Settings, settings
+from app.dependencies.settings import get_settings
 from app.routers import courses, lessons
 
 app = FastAPI(
@@ -16,6 +17,15 @@ app.include_router(lessons.router)
 @app.get('/')
 def read_root():
     return {'message': 'Welcome to Learning Platform API'}
+
+
+@app.get('/info')
+def get_info(app_settings: Settings = Depends(get_settings)):
+    return {
+        'title': app_settings.app_title,
+        'description': app_settings.app_description,
+        'version': app_settings.app_version,
+    }
 
 
 @app.get('/health')
