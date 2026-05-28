@@ -2,11 +2,15 @@ from app.repositories import course_repository
 from app.schemas.course import CoursePostSchema, CourseReplaceSchema, CourseUpdateSchema
 
 
-def get_courses(active: bool | None = None) -> list[dict]:
+def get_courses(active: bool | None = None, search: str | None = None) -> list[dict]:
     courses = course_repository.get_all_courses()
-    if active is None:
-        return courses
-    return [course for course in courses if course['is_active'] == active]
+    if active is not None:
+        courses = [course for course in courses if course['is_active'] == active]
+    if search is not None:
+        courses = [
+            course for course in courses if search.lower() in course['title'].lower()
+        ]
+    return courses
 
 
 def get_course(course_id: int) -> dict | None:
