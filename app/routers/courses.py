@@ -1,5 +1,6 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
+from app.dependencies.course import get_course_filters
 from app.schemas.course import (
     CoursePostSchema,
     CourseReadSchema,
@@ -16,8 +17,10 @@ router = APIRouter(
 
 
 @router.get('/', response_model=list[CourseReadSchema])
-def get_courses(active: bool | None = None):
-    return course_service.get_courses(active=active)
+def get_courses(filters: dict = Depends(get_course_filters)):
+    return course_service.get_courses(
+        active=filters['active'], search=filters['search']
+    )
 
 
 @router.get('/{course_id}', response_model=CourseReadSchema)
