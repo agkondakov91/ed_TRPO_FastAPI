@@ -6,11 +6,13 @@ from app.schemas.lesson import (
 )
 
 
-def get_lessons(course_id: int | None = None) -> list[dict]:
+def get_lessons(course_id: int | None = None, active: bool | None = None) -> list[dict]:
     lessons = lesson_repository.get_all_lessons()
-    if course_id is None:
-        return lessons
-    return [lesson for lesson in lessons if lesson['course_id'] == course_id]
+    if course_id is not None:
+        lessons = [lesson for lesson in lessons if lesson['course_id'] == course_id]
+    if active is not None:
+        lessons = [lesson for lesson in lessons if lesson['is_active'] == active]
+    return lessons
 
 
 def get_lesson(lesson_id: int) -> dict | None:
