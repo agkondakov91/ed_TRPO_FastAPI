@@ -1,5 +1,6 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
+from app.dependencies.lesson import get_lesson_filters
 from app.schemas.lesson import (
     LessonCreateSchema,
     LessonReadSchema,
@@ -13,8 +14,10 @@ router = APIRouter(prefix='/lessons', tags=['Lessons'])
 
 
 @router.get('/', response_model=list[LessonReadSchema])
-def get_lessons(course_id: int | None = None):
-    return lesson_service.get_lessons(course_id=course_id)
+def get_lessons(filters: dict = Depends(get_lesson_filters)):
+    return lesson_service.get_lessons(
+        course_id=filters['course_id'], active=filters['active']
+    )
 
 
 @router.get('/{lesson_id}', response_model=LessonReadSchema)
