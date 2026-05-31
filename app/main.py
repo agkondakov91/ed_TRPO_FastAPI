@@ -3,8 +3,12 @@ from fastapi import Depends, FastAPI
 from app.core.config import Settings, settings
 from app.database import Base, engine
 from app.dependencies.settings import get_settings
-from app.models import course  # noqa: F401
+from app.models.course import Course
+from app.models.lesson import Lesson
 from app.routers import courses, lessons
+
+_ = Course
+_ = Lesson
 
 Base.metadata.create_all(bind=engine)
 

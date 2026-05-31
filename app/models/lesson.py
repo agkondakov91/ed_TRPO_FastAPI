@@ -4,10 +4,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
 
-class Course(Base):
-    __tablename__ = 'courses'
+class Lesson(Base):
+    __tablename__ = 'lessons'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(100), nullable=False)
-    description: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    course_id: Mapped[int] = mapped_column(nullable=False)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
