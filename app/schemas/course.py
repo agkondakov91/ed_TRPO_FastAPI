@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CoursePostSchema(BaseModel):
@@ -18,6 +18,7 @@ class CourseUpdateSchema(BaseModel):
 
 
 class CourseReadSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     title: str
     description: str | None
