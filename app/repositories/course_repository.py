@@ -25,27 +25,23 @@ def create_course(db: Session, course_data: dict) -> Course:
     return course
 
 
-# def replace_course(course_id: int, course_data: dict) -> dict | None:
-#     for index, course in enumerate(courses):
-#         if course['id'] == course_id:
-#             updated_course = {'id': course_id, **course_data}
-#             courses[index] = updated_course
-#             return updated_course
-#     return None
-#
-#
-# def update_course(course_id: int, course_data: dict) -> dict | None:
-#     course = get_course_by_id(course_id)
-#     if course is None:
-#         return None
-#     for key, value in course_data.items():
-#         course[key] = value
-#     return course
-#
-#
-# def delete_course(course_id: int) -> bool:
-#     course = get_course_by_id(course_id)
-#     if course is None:
-#         return False
-#     courses.remove(course)
-#     return True
+def update_course_fields(
+    db: Session, course_id: int, course_data: dict
+) -> Course | None:
+    course = get_course_by_id(db, course_id)
+    if course is None:
+        return None
+    for key, value in course_data.items():
+        setattr(course, key, value)
+    db.commit()
+    db.refresh(course)
+    return course
+
+
+def delete_course(db: Session, course_id: int) -> bool:
+    course = get_course_by_id(db, course_id)
+    if course is None:
+        return False
+    db.delete(course)
+    db.commit()
+    return True
