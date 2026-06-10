@@ -8,6 +8,7 @@ from app.schemas.course import (
     CourseReadSchema,
     CourseReplaceSchema,
     CourseUpdateSchema,
+    CourseWithLessonsSchema,
 )
 from app.services import course_service
 from app.utils.exceptions import raise_not_found
@@ -30,6 +31,14 @@ def get_courses(
 @router.get('/{course_id}', response_model=CourseReadSchema)
 def get_course(course_id: int, db: Session = Depends(get_db)):
     course = course_service.get_course(db, course_id)
+    if course is None:
+        raise_not_found('Course')
+    return course
+
+
+@router.get('/{course_id}/with-lessons', response_model=CourseWithLessonsSchema)
+def get_course_with_lessons(course_id: int, db: Session = Depends(get_db)):
+    course = course_service.get_course_with_lessons(db, course_id)
     if course is None:
         raise_not_found('Course')
     return course

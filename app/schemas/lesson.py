@@ -22,3 +22,10 @@ class LessonReadSchema(BaseModel):
     course_id: int
     title: str
     is_active: bool
+
+
+class LessonShortSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    title: str
+    is_active: bool

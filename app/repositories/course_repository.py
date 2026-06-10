@@ -1,7 +1,7 @@
 from typing import cast
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.course import Course
 
@@ -15,6 +15,16 @@ def get_all_courses(db: Session) -> list[Course]:
 def get_course_by_id(db: Session, course_id: int) -> Course | None:
     course = db.get(Course, course_id)
     return cast(Course | None, course)
+
+
+def get_course_with_lessons(db: Session, course_id: int) -> Course | None:
+    statement = (
+        select(Course)
+        .options(selectinload(Course.lessons))
+        .where(Course.id == course_id)
+    )
+    course = db.scalars(statement).first()
+    return course
 
 
 def create_course(db: Session, course_data: dict) -> Course:

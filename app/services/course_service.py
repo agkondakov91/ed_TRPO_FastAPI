@@ -26,6 +26,10 @@ def get_course(db: Session, course_id: int) -> Course | None:
     return course_repository.get_course_by_id(db, course_id)
 
 
+def get_course_with_lessons(db: Session, course_id: int) -> Course | None:
+    return course_repository.get_course_with_lessons(db, course_id)
+
+
 def create_course(db: Session, course_data: CoursePostSchema) -> Course:
     new_course = {
         'title': course_data.title,

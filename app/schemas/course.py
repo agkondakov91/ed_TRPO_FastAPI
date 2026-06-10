@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.lesson import LessonShortSchema
+
 
 class CoursePostSchema(BaseModel):
     title: str = Field(min_length=3, max_length=100)
@@ -23,3 +25,7 @@ class CourseReadSchema(BaseModel):
     title: str
     description: str | None
     is_active: bool
+
+
+class CourseWithLessonsSchema(CourseReadSchema):
+    lessons: list[LessonShortSchema]
