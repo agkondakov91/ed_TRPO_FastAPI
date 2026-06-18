@@ -23,7 +23,11 @@ def get_lessons(
     filters: dict = Depends(get_lesson_filters), db: Session = Depends(get_db)
 ):
     return lesson_service.get_lessons(
-        db=db, course_id=filters['course_id'], active=filters['active']
+        db=db,
+        course_id=filters['course_id'],
+        active=filters['active'],
+        limit=filters['limit'],
+        offset=filters['offset'],
     )
 
 

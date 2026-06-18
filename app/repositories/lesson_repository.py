@@ -6,8 +6,23 @@ from sqlalchemy.orm import Session
 from app.models.lesson import Lesson
 
 
-def get_all_lessons(db: Session) -> list[Lesson]:
+def get_all_lessons(
+    db: Session,
+    course_id: int | None = None,
+    active: bool | None = None,
+    limit: int = 10,
+    offset: int = 0,
+) -> list[Lesson]:
     statement = select(Lesson)
+
+    if course_id is not None:
+        statement = statement.where(Lesson.course_id == course_id)
+
+    if active is not None:
+        statement = statement.where(Lesson.is_active.is_(active))
+
+    statement = statement.order_by(Lesson.id).limit(limit).offset(offset)
+
     lessons = db.scalars(statement).all()
     return list(lessons)
 

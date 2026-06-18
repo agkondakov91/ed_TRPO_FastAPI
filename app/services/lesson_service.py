@@ -10,14 +10,15 @@ from app.schemas.lesson import (
 
 
 def get_lessons(
-    db: Session, course_id: int | None = None, active: bool | None = None
+    db: Session,
+    course_id: int | None = None,
+    active: bool | None = None,
+    limit: int = 10,
+    offset: int = 0,
 ) -> list[Lesson]:
-    lessons = lesson_repository.get_all_lessons(db)
-    if course_id is not None:
-        lessons = [lesson for lesson in lessons if lesson.course_id == course_id]
-    if active is not None:
-        lessons = [lesson for lesson in lessons if lesson.is_active == active]
-    return lessons
+    return lesson_repository.get_all_lessons(
+        db=db, course_id=course_id, active=active, limit=limit, offset=offset
+    )
 
 
 def get_lesson(db: Session, lesson_id: int) -> Lesson | None:
