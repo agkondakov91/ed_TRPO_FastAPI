@@ -6,8 +6,23 @@ from sqlalchemy.orm import Session, selectinload
 from app.models.course import Course
 
 
-def get_all_courses(db: Session) -> list[Course]:
+def get_all_courses(
+    db: Session,
+    active: bool | None = None,
+    search: str | None = None,
+    limit: int = 10,
+    offset: int = 0,
+) -> list[Course]:
     statement = select(Course)
+
+    if active is not None:
+        statement = statement.where(Course.is_active.is_(active))
+
+    if search is not None:
+        statement = statement.where(Course.title.ilike(f'%{search}%'))
+
+    statement = statement.order_by(Course.id).limit(limit).offset(offset)
+
     courses = db.scalars(statement).all()
     return list(courses)
 

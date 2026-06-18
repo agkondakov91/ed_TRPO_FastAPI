@@ -24,7 +24,11 @@ def get_courses(
     filters: dict = Depends(get_course_filters), db: Session = Depends(get_db)
 ):
     return course_service.get_courses(
-        db=db, active=filters['active'], search=filters['search']
+        db=db,
+        active=filters['active'],
+        search=filters['search'],
+        limit=filters['limit'],
+        offset=filters['offset'],
     )
 
 
