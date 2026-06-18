@@ -10,16 +10,15 @@ from app.schemas.course import (
 
 
 def get_courses(
-    db: Session, active: bool | None = None, search: str | None = None
+    db: Session,
+    active: bool | None = None,
+    search: str | None = None,
+    limit: int = 10,
+    offset: int = 0,
 ) -> list[Course]:
-    courses = course_repository.get_all_courses(db)
-    if active is not None:
-        courses = [course for course in courses if course.is_active == active]
-    if search is not None:
-        courses = [
-            course for course in courses if search.lower() in course.title.lower()
-        ]
-    return courses
+    return course_repository.get_all_courses(
+        db=db, active=active, search=search, limit=limit, offset=offset
+    )
 
 
 def get_course(db: Session, course_id: int) -> Course | None:
