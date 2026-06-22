@@ -4,9 +4,11 @@ from sqlite3 import Connection as SQLiteConnection
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-DATABASE_URL = 'sqlite:///./app.db'
+from app.core.config import get_settings
 
-engine = create_engine(DATABASE_URL, echo=True)
+settings = get_settings()
+
+engine = create_engine(settings.database_url, echo=settings.debug)
 
 SessionLocal = sessionmaker(
     bind=engine,
@@ -16,7 +18,9 @@ SessionLocal = sessionmaker(
 
 
 @event.listens_for(engine, 'connect')
-def enable_sqlite_foreign_keys(dbapi_connection: SQLiteConnection, _connection_record):
+def enable_sqlite_foreign_keys(
+    dbapi_connection: SQLiteConnection, _connection_record: object
+) -> None:
     cursor = dbapi_connection.cursor()
     cursor.execute('PRAGMA foreign_keys=ON')
     cursor.close()
